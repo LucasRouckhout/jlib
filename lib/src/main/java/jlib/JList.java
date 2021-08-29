@@ -29,9 +29,9 @@ public class JList<T> implements Iterable<T> {
      *
      * @param index     The index from which to get the element.
      * @return          Returns an optional containing the data at
-     *                  that index. If the list is empty or you 
+     *                  that index. If the list is empty or you
      *                  asked for an index that does not have an
-     *                  element at it an empty optional will be 
+     *                  element at it an empty optional will be
      *                  returned.
      */
     public Optional<T> get(final int index) {
@@ -131,45 +131,45 @@ public class JList<T> implements Iterable<T> {
     /**
      * Extracts a node from the list.
      *
-     * Depending on where in the list you are you have to 
+     * Depending on where in the list you are you have to
      * perform different "cleanup" tasks with the references
-     * to next and previous. 
+     * to next and previous.
      *
-	 * There are 4 situations:
- 	 * 1. There is only one element
-	 * 2. You are at the end of the list
-	 * 3. You are at the beginning of the list.
-	 * 4. You are somewhere in the middle.
+     * There are 4 situations:
+     * 1. There is only one element
+     * 2. You are at the end of the list
+     * 3. You are at the beginning of the list.
+     * 4. You are somewhere in the middle.
      *
      * @param node  The node to be extracted from the list.
      */
-	private void extractNode(final JListNode<T> node) {
-		if (node.getNext() == null && node.getPrevious() == null) {
-		    this.head = this.tail = null;
+    private void extractNode(final JListNode<T> node) {
+        if (node.getNext() == null && node.getPrevious() == null) {
+            this.head = this.tail = null;
 
-		} else if (node.getNext() == null) {
-		    node.getPrevious().setNext(null);
-		    this.tail = node.getPrevious();
+        } else if (node.getNext() == null) {
+            node.getPrevious().setNext(null);
+            this.tail = node.getPrevious();
 
-		} else if (node.getPrevious() == null) {
-		    node.getNext().setPrevious(null);
-		    this.head = node.getNext();
+        } else if (node.getPrevious() == null) {
+            node.getNext().setPrevious(null);
+            this.head = node.getNext();
 
-		} else {
-		    node.getPrevious().setNext(node.getNext());
-		    node.getNext().setPrevious(node.getPrevious());
+        } else {
+            node.getPrevious().setNext(node.getNext());
+            node.getNext().setPrevious(node.getPrevious());
 
-		}
-        
+        }
+
         // Since we have taken out the node we do not
-        // want to have any lingering references to 
-        // the nodes in the list if the node is no longer 
+        // want to have any lingering references to
+        // the nodes in the list if the node is no longer
         // in it.
         node.setPrevious(null);
         node.setNext(null);
 
         this.size--;
-	}
+    }
 
     /**
      * Insert an element at the end of the List.

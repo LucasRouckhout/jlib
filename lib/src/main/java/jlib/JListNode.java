@@ -15,4 +15,3 @@ public class JListNode<T> {
         this.next = this.previous = null;
     }
 }
-

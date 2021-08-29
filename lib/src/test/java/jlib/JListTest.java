@@ -30,18 +30,18 @@ public class JListTest {
         list.push(3);
         list.push(5);
 
-        assertEquals("The size of the list should be 3", 
-                3, list.size());
-
-        assertTrue("optional should not be empty", 
-                !list.get(0).isEmpty());
-        assertTrue("The element at index 0 should be 1", 
-                list.get(0).get() == 1);
+        assertEquals("The size of the list should be 3",
+                     3, list.size());
 
         assertTrue("optional should not be empty",
-                !list.get(2).isEmpty());
-        assertTrue("The element at index 2 should be 5", 
-                list.get(2).get() == 5);
+                   !list.get(0).isEmpty());
+        assertTrue("The element at index 0 should be 1",
+                   list.get(0).get() == 1);
+
+        assertTrue("optional should not be empty",
+                   !list.get(2).isEmpty());
+        assertTrue("The element at index 2 should be 5",
+                   list.get(2).get() == 5);
     }
 
     @Test
@@ -50,16 +50,16 @@ public class JListTest {
         list.push(1);
         list.push(3);
         list.push(5);
-        
+
         final ArrayList<Integer> arrayList = new ArrayList<>();
         for (final Integer e : list) {
             arrayList.add(e);
         }
 
-        assertTrue("The element at index 0 should be 1", 
-                1 == arrayList.get(0));
-        assertTrue("The element at index 2 should be 5", 
-                5 == arrayList.get(2));
+        assertTrue("The element at index 0 should be 1",
+                   1 == arrayList.get(0));
+        assertTrue("The element at index 2 should be 5",
+                   5 == arrayList.get(2));
     }
 
     @Test
@@ -107,7 +107,7 @@ public class JListTest {
     public void testRemoveFromEmptyList() {
         final JList<Integer> list = new JList<>();
         final Optional<Integer> val = list.remove(5);
-        
+
         assertTrue("The optional should be empty", val.isEmpty());
         assertEquals("The size of the list should be 0", 0, list.size());
     }
