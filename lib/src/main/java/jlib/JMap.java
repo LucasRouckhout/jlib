@@ -87,10 +87,7 @@ public class JMap<K, V> implements Iterable<V>, Map<K, V> {
         final int hash = this.hash(key);
         final JList<JMapEntry<K, V>> bucket = this.buckets.get(hash);
 
-        if (bucket.isEmpty())
-            this.buckets.get(hash).push(entry);
-        else if (!bucket.contains(entry))
-            this.buckets.get(hash).push(entry);
+        //TODO: Implement the rest ;)
         return null;
     }
 
