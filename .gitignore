@@ -31,3 +31,5 @@ build/
 .settings/
 .project
 .classpath
+.gradle/
+.bloop/

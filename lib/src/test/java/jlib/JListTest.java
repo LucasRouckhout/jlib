@@ -80,4 +80,36 @@ public class JListTest {
         }
     }
 
+    @Test
+    public void testContainsInJList() {
+        final JList<Integer> list = new JList<>();
+        list.push(5);
+        assertTrue(list.contains(5));
+    }
+
+    @Test
+    public void testRemoveElementFromList() {
+        final JList<Integer> list = new JList<>();
+        list.push(5);
+
+        final Optional<Integer> val = list.remove(5);
+
+        assertTrue("Optional should not be empty", val.isPresent());
+        assertEquals(5, (int) val.get());
+        assertTrue("List should be empty", list.isEmpty());
+
+        final Optional<Integer> secondVal = list.remove(5);
+        assertTrue("The optional should be empty", secondVal.isEmpty());
+        assertEquals("The list should have size 0", 0, list.size());
+    }
+
+    @Test
+    public void testRemoveFromEmptyList() {
+        final JList<Integer> list = new JList<>();
+        final Optional<Integer> val = list.remove(5);
+        
+        assertTrue("The optional should be empty", val.isEmpty());
+        assertEquals("The size of the list should be 0", 0, list.size());
+    }
+
 }
