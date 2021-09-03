@@ -1,7 +1,6 @@
 package jlib;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -26,9 +25,9 @@ public class JListTest {
     @Test
     public void testGetOnJList() {
         final JList<Integer> list = new JList<>();
-        list.push(1);
-        list.push(3);
-        list.push(5);
+        list.add(1);
+        list.add(3);
+        list.add(5);
 
         assertEquals("The size of the list should be 3",
                      3, list.size());
@@ -47,9 +46,9 @@ public class JListTest {
     @Test
     public void testForEachLoop() {
         final JList<Integer> list = new JList<>();
-        list.push(1);
-        list.push(3);
-        list.push(5);
+        list.add(1);
+        list.add(3);
+        list.add(5);
 
         final ArrayList<Integer> arrayList = new ArrayList<>();
         for (final Integer e : list) {
@@ -65,7 +64,7 @@ public class JListTest {
     @Test
     public void testPopJList() {
         final JList<Integer> list = new JList<>();
-        list.push(54);
+        list.add(54);
         final Optional<Integer> value = list.pop();
 
         assertTrue("Optional should not be empty", !value.isEmpty());;
@@ -77,39 +76,41 @@ public class JListTest {
         final JList<Integer> list = new JList<>();
         // Check if we don't get any exceptions thrown in our face.
         for (final Integer i : list) {
+            // Do nothin
         }
     }
 
     @Test
     public void testContainsInJList() {
         final JList<Integer> list = new JList<>();
-        list.push(5);
+        list.add(5);
         assertTrue(list.contains(5));
     }
 
     @Test
     public void testRemoveElementFromList() {
         final JList<Integer> list = new JList<>();
-        list.push(5);
+        list.add(5);
 
-        final Optional<Integer> val = list.remove(5);
 
-        assertTrue("Optional should not be empty", val.isPresent());
-        assertEquals(5, (int) val.get());
-        assertTrue("List should be empty", list.isEmpty());
+        assertTrue("The return value of remove should be true", 
+                list.remove(5));
 
-        final Optional<Integer> secondVal = list.remove(5);
-        assertTrue("The optional should be empty", secondVal.isEmpty());
+        assertTrue("List should be empty", 
+                list.isEmpty());
         assertEquals("The list should have size 0", 0, list.size());
     }
 
     @Test
     public void testRemoveFromEmptyList() {
-        final JList<Integer> list = new JList<>();
-        final Optional<Integer> val = list.remove(5);
+        final var list = new JList<Integer>();
 
-        assertTrue("The optional should be empty", val.isEmpty());
-        assertEquals("The size of the list should be 0", 0, list.size());
+        assertTrue("The return value of remove on an empty JList should be false",
+                !list.remove(5));
+        assertTrue("List should be empty", 
+                list.isEmpty());
+        assertEquals("The list should have size 0", 
+                0, list.size());
     }
 
 }

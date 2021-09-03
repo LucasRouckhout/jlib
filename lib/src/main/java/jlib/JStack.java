@@ -35,7 +35,7 @@ public class JStack<T> {
      * Push an element on the stack.
      */
     public void push(final T data) {
-        this.list.push(data);
+        this.list.add(data);
     }
 
     public int size() {

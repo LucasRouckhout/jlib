@@ -15,17 +15,16 @@ public class JMap<K, V> implements Iterable<V>, Map<K, V> {
 
     private ArrayList<JList<JMapEntry<K, V>>> buckets;
     private final int bucketLength;
+    private int size;
 
     public JMap() {
-        this.buckets = new ArrayList<>();
-        this.bucketLength = 40;
-
-        this.init();
+        this(40);
     }
 
     public JMap(final int bucketLength) {
         this.buckets = new ArrayList<>();
         this.bucketLength = bucketLength;
+        this.size = 0;
 
         this.init();
     }
@@ -46,15 +45,26 @@ public class JMap<K, V> implements Iterable<V>, Map<K, V> {
 
     @Override
     public boolean containsKey(final Object key) {
-        // TODO Auto-generated method stub
-        return false;
+        boolean contains = false;
+        for (final JMapEntry<K, V> entry : this.buckets.get(hash(key))) {
+            contains = entry.getKey().equals(key);
+            if (contains) break;
+        }
+        return contains;
     }
 
 
     @Override
     public boolean containsValue(final Object value) {
-        // TODO Auto-generated method stub
-        return false;
+        boolean contains = false;
+        outerLoop:
+        for (final JList<JMapEntry<K, V>> bucket : this.buckets) {
+            for (final JMapEntry<K, V> entry : bucket) {
+                contains = entry.getValue().equals(value);
+                if (contains) break outerLoop;
+            }
+        }
+        return contains;
     }
 
     @Override
@@ -65,7 +75,7 @@ public class JMap<K, V> implements Iterable<V>, Map<K, V> {
 
     @Override
     public V get(Object key) {
-        // TODO Auto-generated method stub
+        // TODO: Implement
         return null;
     }
 
@@ -88,25 +98,26 @@ public class JMap<K, V> implements Iterable<V>, Map<K, V> {
         final JList<JMapEntry<K, V>> bucket = this.buckets.get(hash);
 
         //TODO: Implement the rest ;)
+        this.size++;
         return null;
     }
 
     @Override
     public void putAll(Map<? extends K, ? extends V> m) {
         // TODO Auto-generated method stub
-
+        this.size += m.size();
     }
 
     @Override
     public V remove(Object key) {
         // TODO Auto-generated method stub
+        this.size--;
         return null;
     }
 
     @Override
     public int size() {
-        // TODO Auto-generated method stub
-        return 0;
+        return this.size;
     }
 
     @Override
@@ -117,15 +128,22 @@ public class JMap<K, V> implements Iterable<V>, Map<K, V> {
 
     @ToString
     @EqualsAndHashCode
-    public class JMapEntry<K, V> {
+    public class JMapEntry<K, V> implements Entry<K, V> {
         @Getter
         private final K key;
         @Getter
-        private final V value;
+        private V value;
 
         public JMapEntry(final K key, final V value) {
             this.key = key;
             this.value = value;
+        }
+
+        @Override
+        public V setValue(V value) {
+            final V oldValue = this.value;
+            this.value = value;
+            return oldValue;
         }
     }
 

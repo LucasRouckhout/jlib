@@ -1,16 +1,19 @@
 package jlib;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Optional;
 
 import lombok.NonNull;
 import lombok.ToString;
 
-/*
- * A very simple doubly linked list implementation.
- */
+/**
+ * JList is a very basic implementation of a doubly linked List.
+ *
+ * It does not adhere to the
+ * */
 @ToString
-public class JList<T> implements Iterable<T> {
+public class JList<T> implements Collection<T> {
 
     private int size;
     private JListNode<T> head;
@@ -69,8 +72,8 @@ public class JList<T> implements Iterable<T> {
         if (this.size() == 0)
             return Optional.empty();
 
-        final T val = this.tail.getData();
-        final JListNode<T> previous = this.tail.getPrevious();
+        final var val = this.tail.getData();
+        final var previous = this.tail.getPrevious();
 
         // If previous is null that means we are poping
         // the last element. So just revert to the state
@@ -88,44 +91,26 @@ public class JList<T> implements Iterable<T> {
     }
 
     /**
-     * Returns true if the JList contains the given value.
-     * Equality is decided using the equals() method.
+     * Removes the element at the given index.
      *
-     * @param   value   The value to check.
-     */
-    public boolean contains(final T value) {
-        boolean contains = false;
-        for (final T val : this) {
-            contains = val.equals(value);
-            break;
-        }
-        return contains;
-    }
-
-    /**
-     * Removes the first occurance of the given value from the list.
-     * Equality is decided using the equals() method.
+     * Removing takes O(n) time.
      *
-     * @param   value   The value to remove.
-     * @return  Returns an optional containing the removed value.
-                If no value was found an empty optional is returned.
-     * @throws  NullPointerException If given value is null.
+     * @param index The index from which to remove the element.
+     * @return true if an element was removed as a result of this call.
      */
-    public Optional<T> remove(@NonNull final T value) {
+    public boolean removeAtIndex(final int index) {
         if (this.isEmpty())
-            return Optional.empty();
+            return false;
 
-        JListNode<T> node = this.head;
-        T val = null;
+        JListNode<T> node = null;
         for (int i = 0; i < this.size(); i++) {
-            if (node.getData().equals(value)) {
+            if (i == index) {
                 extractNode(node);
-                val = node.getData();
                 break;
             }
             node = node.getNext();
         }
-        return Optional.ofNullable(val);
+        return true;
     }
 
     /**
@@ -164,29 +149,12 @@ public class JList<T> implements Iterable<T> {
         // Since we have taken out the node we do not
         // want to have any lingering references to
         // the nodes in the list if the node is no longer
-        // in it.
+        // in it to help out the GC. Don't know if this is
+        // bullshit or not but doesn't hurt in any case.
         node.setPrevious(null);
         node.setNext(null);
 
         this.size--;
-    }
-
-    /**
-     * Insert an element at the end of the List.
-     *
-     * @param element  The element to be added.
-     */
-    public void push(final T element) {
-        final JListNode<T> newNode = new JListNode<>(element);
-        if (this.size() == 0) {
-            this.head = newNode;
-            this.tail = newNode;
-        } else {
-            this.tail.setNext(newNode);
-            newNode.setPrevious(this.tail);
-            this.tail = newNode;
-        }
-        this.size++;
     }
 
     /**
@@ -223,10 +191,120 @@ public class JList<T> implements Iterable<T> {
 
         @Override
         public T next() {
-            final T next = this.current.getData();
+            final var next = this.current.getData();
             this.current = this.current.getNext();
             return next;
         }
-
     }
+
+    /**
+     * Ensures that this {@link JList} contains the specified element. This call will
+     * always return true in the case of JList since duplicates are allowed.
+     *
+     * This method adheres to the add method of the {@link Collection} interface.
+     *
+     * @param   element element whose presence in this {@link JList} is to be ensured.
+     * @return  true is this collection was changed as a result of this call.
+     *          should always be true in the case of a JList.
+     */
+    @Override
+    public boolean add(final T element) {
+        final var newNode = new JListNode<T>(element);
+        if (this.size() == 0) {
+            this.head = newNode;
+            this.tail = newNode;
+        } else {
+            this.tail.setNext(newNode);
+            newNode.setPrevious(this.tail);
+            this.tail = newNode;
+        }
+        this.size++;
+        return true;
+    }
+
+    /**
+     * Adds all of the elements in the specified collection to this {@link JList}
+     *
+     * @param collection collection containing elements to be added to this
+     *                   {@link JList}
+     * @return true if this {@link JList} changed as a result of this call which
+     * should always be the case for a {@link JList}.
+     */
+    @Override
+    public boolean addAll(final Collection<? extends T> collection) {
+        for (final T element : collection)
+            this.add(element);
+        return true;
+    }
+
+    @Override
+    public void clear() {
+        this.head = this.tail = null;
+        this.size = 0;
+    }
+
+    @Override
+    public boolean contains(final Object value) {
+        boolean contains = false;
+        for (final T val : this) {
+            contains = val.equals(value);
+            break;
+        }
+        return contains;
+    }
+
+    @Override
+    public boolean containsAll(final Collection<?> collection) {
+        // TODO: Implement
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Removes the first occurance of the given value from the list.
+     * Equality is decided using the equals() method.
+     *
+     * @param   value   The value to remove.
+     * @return  true if a value was removed because of this call.
+     * @throws  NullPointerException If given value is null.
+     */
+    @Override
+    public boolean remove(@NonNull final Object value) {
+        if (this.isEmpty())
+            return false;
+
+        JListNode<T> node = this.head;
+        for (int i = 0; i < this.size(); i++) {
+            if (node.getData().equals(value)) {
+                extractNode(node);
+                break;
+            }
+            node = node.getNext();
+        }
+        return true;
+    }
+
+    @Override
+    public boolean removeAll(final Collection<?> arg0) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean retainAll(final Collection<?> arg0) {
+        // TODO: Implement
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object[] toArray() {
+        // TODO: Implement
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public <T> T[] toArray(final T[] arg0) {
+        // TODO: Implement
+        throw new UnsupportedOperationException();
+    }
+
 }
