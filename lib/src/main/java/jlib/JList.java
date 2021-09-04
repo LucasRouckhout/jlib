@@ -3,6 +3,7 @@ package jlib;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import lombok.NonNull;
 import lombok.ToString;
@@ -25,9 +26,9 @@ public class JList<T> implements Collection<T> {
     }
 
     /**
-     * Retrieves the data element at the given index.
+     * Retrieves the element at the given index.
      *
-     * Watch out retrieving from a Linked List is o(n) time
+     * Watch out, retrieving from a Linked List is o(n) time
      * complexity so use this method judiciusly.
      *
      * @param index     The index from which to get the element.
@@ -88,29 +89,6 @@ public class JList<T> implements Collection<T> {
 
         this.size--;
         return Optional.of(val);
-    }
-
-    /**
-     * Removes the element at the given index.
-     *
-     * Removing takes O(n) time.
-     *
-     * @param index The index from which to remove the element.
-     * @return true if an element was removed as a result of this call.
-     */
-    public boolean removeAtIndex(final int index) {
-        if (this.isEmpty())
-            return false;
-
-        JListNode<T> node = null;
-        for (int i = 0; i < this.size(); i++) {
-            if (i == index) {
-                extractNode(node);
-                break;
-            }
-            node = node.getNext();
-        }
-        return true;
     }
 
     /**
@@ -180,6 +158,9 @@ public class JList<T> implements Collection<T> {
         private JListNode<T> current;
 
         public JListIterator(final JList<T> list) {
+            // Note that an explicit else is not needed here.
+            // if head is null then current will be and hasNext
+            // will return false.
             if (list.head().isPresent())
                 this.current = list.head().get();
         }
@@ -232,8 +213,7 @@ public class JList<T> implements Collection<T> {
      */
     @Override
     public boolean addAll(final Collection<? extends T> collection) {
-        for (final T element : collection)
-            this.add(element);
+        collection.stream().forEach(this::add);
         return true;
     }
 
@@ -245,18 +225,19 @@ public class JList<T> implements Collection<T> {
 
     @Override
     public boolean contains(final Object value) {
-        boolean contains = false;
-        for (final T val : this) {
-            contains = val.equals(value);
-            break;
-        }
-        return contains;
+        return this.stream()
+            .parallel()
+            .filter(val -> val.equals(value))
+            .findAny()
+            .isPresent();
     }
 
     @Override
     public boolean containsAll(final Collection<?> collection) {
-        // TODO: Implement
-        throw new UnsupportedOperationException();
+        return collection.stream()
+            .parallel()
+            .filter(this::contains)
+            .count() == collection.size();
     }
 
     /**
