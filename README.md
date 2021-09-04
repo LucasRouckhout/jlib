@@ -12,7 +12,7 @@ paste it in but you are on your own in that case ;)
 
 - [x] Linked List (JList)
 - [x] Stack (JStack)
-- [ ] HashMap
+- [x] HashMap
 - [ ] Set
 - [ ] Tree
 

@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import com.pholser.junit.quickcheck.Property;
 import com.pholser.junit.quickcheck.runner.JUnitQuickcheck;
@@ -24,7 +23,7 @@ public class JMapPropertyTest {
                 SIZE, map.size());
         assertTrue(values.containsAll(map.values()));
         assertTrue(keys.containsAll(map.keySet()));
-        new HashMap<>();
     }
+
 
 }
