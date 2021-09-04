@@ -2,117 +2,176 @@ package jlib;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.NonNull;
-import lombok.ToString;
 
-public class JMap<K, V> implements Iterable<V>, Map<K, V> {
+public class JMap<K, V> implements Map<K, V> {
 
-    private ArrayList<JList<JMapEntry<K, V>>> buckets;
+    private List<JList<Entry<K, V>>> buckets;
     private final int bucketLength;
     private int size;
 
     public JMap() {
-        this(40);
+        this(2048);
     }
 
     public JMap(final int bucketLength) {
-        this.buckets = new ArrayList<>();
         this.bucketLength = bucketLength;
+        this.buckets = new ArrayList<>(this.bucketLength);
         this.size = 0;
-
         this.init();
     }
 
+    /**
+     * Lazy way of avoiding {@link IndexOutOfBoundsException}'s but when I have
+     * time I will try to find a clever way to only increase the size of the 
+     * underlying Array when needed.
+     *
+     * TODO: Be more clever then this.
+     * */
     private void init() {
         for (int i = 0; i < this.bucketLength; i++)
             this.buckets.add(new JList<>());
     }
-
+    
     @Override
     public void clear() {
         this.buckets.clear();
     }
 
-    private int hash(final Object key) {
-        return key.hashCode() & this.bucketLength;
+    private int hash(@NonNull final Object key) {
+        return key.hashCode() % this.bucketLength;
     }
 
     @Override
     public boolean containsKey(final Object key) {
-        boolean contains = false;
-        for (final JMapEntry<K, V> entry : this.buckets.get(hash(key))) {
-            contains = entry.getKey().equals(key);
-            if (contains) break;
-        }
-        return contains;
+        return this.keySet().stream()
+               .filter(k -> k.equals(key))
+               .findAny()
+               .isPresent();
     }
 
 
     @Override
     public boolean containsValue(final Object value) {
-        boolean contains = false;
-        outerLoop:
-        for (final JList<JMapEntry<K, V>> bucket : this.buckets) {
-            for (final JMapEntry<K, V> entry : bucket) {
-                contains = entry.getValue().equals(value);
-                if (contains) break outerLoop;
-            }
-        }
-        return contains;
+        return this.values().stream()
+               .filter(val -> val.equals(value))
+               .findAny()
+               .isPresent();
     }
 
     @Override
     public Set<Entry<K, V>> entrySet() {
-        // TODO Auto-generated method stub
-        return null;
+        return this.buckets.stream()
+            .flatMap(Collection::stream)
+            .collect(Collectors.toSet());
     }
 
+    /**
+     * Returns the value to which the specified key is mapped, or null if this 
+     * map contains no mapping for the key.
+     * 
+     * @param key the key whose associated value is to be returned.
+     * @throws NullPointerException if the specified key is null.
+     * */
     @Override
-    public V get(Object key) {
-        // TODO: Implement
-        return null;
+    public V get(@NonNull final Object key) {
+        final var hash = hash(key);
+        if (this.buckets.size() <= hash)
+            return null;
+
+        final var bucket = this.buckets.get(hash);
+        return bucket.stream()
+            .filter(entry -> entry.getKey().equals(key))
+            .map(e -> e.getValue())
+            .findAny()
+            .get();
     }
 
     @Override
     public boolean isEmpty() {
-        // TODO Auto-generated method stub
-        return false;
+        return this.size == 0;
     }
 
     @Override
     public Set<K> keySet() {
-        // TODO Auto-generated method stub
-        return null;
+        return this.buckets.stream()
+            .flatMap(Collection::stream)
+            .map(entry -> entry.getKey())
+            .collect(Collectors.toSet());
     }
 
+    /**
+     * Associates the specified value with the specified key in this map
+     *
+     * @param key key with which the specified value is to be associated
+     * @param value value to be associated with the specified key
+     *
+     * @return the previous value associated with key, or null if there was
+     * no mapping for key.
+     *
+     * @throws NullPointerException if the specified key and/or value is null.
+     * */
     @Override
     public V put(@NonNull final K key, @NonNull final V value) {
-        final JMapEntry<K, V> entry = new JMapEntry<>(key, value);
-        final int hash = this.hash(key);
-        final JList<JMapEntry<K, V>> bucket = this.buckets.get(hash);
+        final var hash = hash(key);
+        if (this.buckets.size() <= hash)
+            this.buckets.set(hash, new JList<>());
 
-        //TODO: Implement the rest ;)
+        final var bucket = this.buckets.get(hash);
+        final var entry = new JMapEntry<>(key, value);
+        final Optional<Entry<K, V>> oldEntryOptional = bucket.stream()
+            .filter(e -> e.getKey().equals(key))
+            .findAny();
+
+        V ret = null;
+        if (oldEntryOptional.isPresent()) {
+            bucket.remove(oldEntryOptional.get());
+            ret = oldEntryOptional.get().getValue();
+        }
+
+        bucket.add(entry);
         this.size++;
-        return null;
+        return ret;
     }
 
     @Override
-    public void putAll(Map<? extends K, ? extends V> m) {
-        // TODO Auto-generated method stub
-        this.size += m.size();
+    public void putAll(final Map<? extends K, ? extends V> m) {
+        m.forEach(this::put);
     }
 
+    /**
+     * Removes the mapping for a key from this map if it is present. 
+     * More formally, if this map contains a mapping from key k to value v such
+     * that Objects.equals(key, k), that mapping is removed. 
+     *
+     * Returns the value to which this map previously associated the key, or 
+     * null if the map contained no mapping for the key.
+     *
+     * @param key key whose mapping is to be removed from this {@link JMap}.
+     * @return the previous value associated with key, or null if there was no 
+     * mapping for key.
+     *
+     * @throws NullPointerException if the specified key is null
+     * */
     @Override
-    public V remove(Object key) {
-        // TODO Auto-generated method stub
+    public V remove(@NonNull final Object key) {
+        final var bucket = this.buckets.get(hash(key));
+        final var optionalOldEntry = bucket.stream()
+            .filter(e -> e.getKey().equals(key))
+            .findAny();
+
+        if (optionalOldEntry.isEmpty())
+            return null;
+
+        bucket.remove(optionalOldEntry.get());
         this.size--;
-        return null;
+        return optionalOldEntry.get().getValue();
     }
 
     @Override
@@ -122,50 +181,10 @@ public class JMap<K, V> implements Iterable<V>, Map<K, V> {
 
     @Override
     public Collection<V> values() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @ToString
-    @EqualsAndHashCode
-    public class JMapEntry<K, V> implements Entry<K, V> {
-        @Getter
-        private final K key;
-        @Getter
-        private V value;
-
-        public JMapEntry(final K key, final V value) {
-            this.key = key;
-            this.value = value;
-        }
-
-        @Override
-        public V setValue(V value) {
-            final V oldValue = this.value;
-            this.value = value;
-            return oldValue;
-        }
-    }
-
-    @Override
-    public Iterator<V> iterator() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public class JMapIterator<V> implements Iterator<V> {
-
-        @Override
-        public boolean hasNext() {
-            // TODO Auto-generated method stub
-            return false;
-        }
-
-        @Override
-        public V next() {
-            // TODO Auto-generated method stub
-            return null;
-        }
+        return this.buckets.stream()
+            .flatMap(Collection::stream)
+            .map(entry -> entry.getValue())
+            .collect(Collectors.toList());
     }
 
 }
