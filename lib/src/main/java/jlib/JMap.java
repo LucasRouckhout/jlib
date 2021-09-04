@@ -2,6 +2,7 @@ package jlib;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -28,6 +29,11 @@ public class JMap<K, V> implements Map<K, V> {
         this.buckets = new ArrayList<>(this.bucketLength);
         this.size = 0;
         this.init();
+    }
+
+    public JMap(final Map<? extends K, ? extends V> m) {
+        this();
+        m.forEach(this::put);
     }
 
 
