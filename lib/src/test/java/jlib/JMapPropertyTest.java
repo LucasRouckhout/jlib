@@ -13,7 +13,8 @@ import org.junit.runner.RunWith;
 @RunWith(JUnitQuickcheck.class)
 public class JMapPropertyTest {
     
-    @Property public void propertySizeEqualsSizeOfInputCollection(final ArrayList<String> keys, final ArrayList<Integer> values) {
+    @Property 
+    public void propertySizeEqualsSizeOfInputCollection(final ArrayList<String> keys, final ArrayList<Integer> values) {
         final var map = new JMap<String, Integer>();
         final int SIZE = Math.min(keys.size(), values.size());
         for (int i = 0; i < SIZE; i++)
@@ -24,6 +25,4 @@ public class JMapPropertyTest {
         assertTrue(values.containsAll(map.values()));
         assertTrue(keys.containsAll(map.keySet()));
     }
-
-
 }
