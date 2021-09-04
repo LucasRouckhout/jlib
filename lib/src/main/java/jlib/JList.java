@@ -3,7 +3,6 @@ package jlib;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import lombok.NonNull;
 import lombok.ToString;

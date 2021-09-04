@@ -10,6 +10,9 @@ import java.util.stream.Collectors;
 
 import lombok.NonNull;
 
+/**
+ * JMap is a simple chained HashMap implementation.
+ * */
 public class JMap<K, V> implements Map<K, V> {
 
     private List<JList<Entry<K, V>>> buckets;
@@ -26,6 +29,7 @@ public class JMap<K, V> implements Map<K, V> {
         this.size = 0;
         this.init();
     }
+
 
     /**
      * Lazy way of avoiding {@link IndexOutOfBoundsException}'s but when I have
@@ -45,7 +49,7 @@ public class JMap<K, V> implements Map<K, V> {
     }
 
     private int hash(@NonNull final Object key) {
-        return key.hashCode() % this.bucketLength;
+        return Math.abs(key.hashCode() % this.bucketLength);
     }
 
     @Override
