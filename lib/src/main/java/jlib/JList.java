@@ -3,6 +3,7 @@ package jlib;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import lombok.NonNull;
 import lombok.ToString;
@@ -250,20 +251,26 @@ public class JList<T> implements Collection<T> {
             return false;
 
         JListNode<T> node = this.head;
+        boolean removed = false;
         for (int i = 0; i < this.size(); i++) {
             if (node.getData().equals(value)) {
                 extractNode(node);
+                removed = true;
                 break;
             }
             node = node.getNext();
         }
-        return true;
+        return removed;
     }
 
     @Override
-    public boolean removeAll(final Collection<?> arg0) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException();
+    public boolean removeAll(final Collection<?> collection) {
+        // Your IDE will want to merge this anyMatch in the map.
+        // Don't, since streams are lazy evaluated we want to make
+        // sure the remove method is called on all the elements of
+        // the collection. Using anyMatch will return the method after
+        // at least one found element was removed.
+        return collection.stream().map(this::remove).anyMatch(e -> e);
     }
 
     @Override
@@ -274,8 +281,7 @@ public class JList<T> implements Collection<T> {
 
     @Override
     public Object[] toArray() {
-        // TODO: Implement
-        throw new UnsupportedOperationException();
+        return this.stream().toArray();
     }
 
     @Override
