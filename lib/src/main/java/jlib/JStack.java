@@ -2,7 +2,7 @@ package jlib;
 
 import java.util.Optional;
 
-/* 
+/*
  * A very basis Stack implementation on top
  * of a doubly linked list.
  */
@@ -20,8 +20,8 @@ public class JStack<T> {
         return this.list.pop();
     }
 
-    /* 
-     * Return the top element of the stack without 
+    /*
+     * Return the top element of the stack without
      * poping it.
      */
     public Optional<T> peek() {
