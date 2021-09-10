@@ -1,18 +1,19 @@
 package jlib;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 import lombok.NonNull;
 import lombok.ToString;
 
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Optional;
+
 /**
  * JList is a very basic implementation of a doubly linked List.
- *
+ * <p>
+ * JList does not accept null elements.
+ * <p>
  * It does not adhere to the
- * */
+ */
 @ToString
 public class JList<T> implements Collection<T> {
 
@@ -27,20 +28,20 @@ public class JList<T> implements Collection<T> {
 
     /**
      * Retrieves the element at the given index.
+     * <p>
+     * Watch out, index retrieving from a Linked List is o(n) in time
+     * complexity so use this method judiciously.
      *
-     * Watch out, retrieving from a Linked List is o(n) time
-     * complexity so use this method judiciusly.
-     *
-     * @param index     The index from which to get the element.
-     * @return          Returns an optional containing the data at
-     *                  that index. If the list is empty or you
-     *                  asked for an index that does not have an
-     *                  element at it an empty optional will be
-     *                  returned.
+     * @param index The index from which to get the element.
+     * @return the element at the given index
      */
-    public Optional<T> get(final int index) {
-        if (index >= this.size())
-            return Optional.empty();
+    public T get(final int index) {
+        if (index >= this.size()) throw new IndexOutOfBoundsException(
+                String.format("index = %d, size = %d", index, this.size)
+        );
+        if (index < 0) throw new IllegalArgumentException(
+                String.format("index = %d", index)
+        );
 
         int count = 0;
         T val = null;
@@ -51,7 +52,7 @@ public class JList<T> implements Collection<T> {
             }
             count++;
         }
-        return Optional.ofNullable(val);
+        return val;
     }
 
     public Optional<JListNode<T>> head() {
@@ -65,9 +66,9 @@ public class JList<T> implements Collection<T> {
     /**
      * Pop off the last element of the list and return it.
      *
-     * @return  An optional containing the last element of
-     *          the list. If the list was empty an empty optional is
-     *          returned.
+     * @return An optional containing the last element of
+     * the list. If the list was empty an empty optional is
+     * returned.
      */
     public Optional<T> pop() {
         if (this.size() == 0)
@@ -93,18 +94,18 @@ public class JList<T> implements Collection<T> {
 
     /**
      * Extracts a node from the list.
-     *
+     * <p>
      * Depending on where in the list you are you have to
      * perform different "cleanup" tasks with the references
      * to next and previous.
-     *
+     * <p>
      * There are 4 situations:
      * 1. There is only one element
      * 2. You are at the end of the list
      * 3. You are at the beginning of the list.
      * 4. You are somewhere in the middle.
      *
-     * @param node  The node to be extracted from the list.
+     * @param node The node to be extracted from the list.
      */
     private void extractNode(final JListNode<T> node) {
         if (node.getNext() == null && node.getPrevious() == null) {
@@ -181,12 +182,12 @@ public class JList<T> implements Collection<T> {
     /**
      * Ensures that this {@link JList} contains the specified element. This call will
      * always return true in the case of JList since duplicates are allowed.
-     *
+     * <p>
      * This method adheres to the add method of the {@link Collection} interface.
      *
-     * @param   element element whose presence in this {@link JList} is to be ensured.
-     * @return  true is this collection was changed as a result of this call.
-     *          should always be true in the case of a JList.
+     * @param element element whose presence in this {@link JList} is to be ensured.
+     * @return true is this collection was changed as a result of this call.
+     * should always be true in the case of a JList.
      */
     @Override
     public boolean add(final T element) {
@@ -225,25 +226,25 @@ public class JList<T> implements Collection<T> {
     @Override
     public boolean contains(final Object value) {
         return this.stream()
-            .parallel()
-            .anyMatch(val -> val.equals(value));
+                .parallel()
+                .anyMatch(val -> val.equals(value));
     }
 
     @Override
     public boolean containsAll(final Collection<?> collection) {
         return collection.stream()
-            .parallel()
-            .filter(this::contains)
-            .count() == collection.size();
+                .parallel()
+                .filter(this::contains)
+                .count() == collection.size();
     }
 
     /**
      * Removes the first occurance of the given value from the list.
      * Equality is decided using the equals() method.
      *
-     * @param   value   The value to remove.
-     * @return  true if a value was removed because of this call.
-     * @throws  NullPointerException If given value is null.
+     * @param value The value to remove.
+     * @return true if a value was removed because of this call.
+     * @throws NullPointerException If given value is null.
      */
     @Override
     public boolean remove(@NonNull final Object value) {

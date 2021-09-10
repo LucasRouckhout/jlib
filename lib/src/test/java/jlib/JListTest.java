@@ -1,12 +1,13 @@
 package jlib;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Optional;
 
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+
+import static org.junit.Assert.*;
 
 public class JListTest {
 
@@ -16,10 +17,16 @@ public class JListTest {
         assertTrue(list.isEmpty());
     }
 
-    @Test
+    @Test(expected = IndexOutOfBoundsException.class)
     public void testGetIndexOnEmptyJList() {
-        final JList<Integer> list = new JList<>();
+        final var list = new JList<Integer>();
         list.get(0);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testThrowIllegalArgumentException() {
+        final var list = new JList<Integer>();
+        list.get(-1);
     }
 
     @Test
@@ -31,16 +38,10 @@ public class JListTest {
 
         assertEquals("The size of the list should be 3",
                      3, list.size());
-
-        assertTrue("optional should not be empty",
-                   !list.get(0).isEmpty());
         assertTrue("The element at index 0 should be 1",
-                   list.get(0).get() == 1);
-
-        assertTrue("optional should not be empty",
-                   !list.get(2).isEmpty());
+                   list.get(0) == 1);
         assertTrue("The element at index 2 should be 5",
-                   list.get(2).get() == 5);
+                   list.get(2) == 5);
     }
 
     @Test
@@ -111,6 +112,16 @@ public class JListTest {
                 list.isEmpty());
         assertEquals("The list should have size 0", 
                 0, list.size());
+    }
+
+    @Test
+    public void testAddingNullValues() {
+        final var list = new JList<Integer>();
+
+        list.add(null);
+        list.add(null);
+
+        assertNull(list.get(0));
     }
 
 }
