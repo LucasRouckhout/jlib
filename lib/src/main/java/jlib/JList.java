@@ -153,7 +153,7 @@ public class JList<T> implements Collection<T> {
         return new JListIterator<T>(this);
     }
 
-    public class JListIterator<T> implements Iterator<T> {
+    public static class JListIterator<T> implements Iterator<T> {
         private JListNode<T> current;
 
         public JListIterator(final JList<T> list) {
@@ -192,12 +192,11 @@ public class JList<T> implements Collection<T> {
         final var newNode = new JListNode<T>(element);
         if (this.size() == 0) {
             this.head = newNode;
-            this.tail = newNode;
         } else {
             this.tail.setNext(newNode);
             newNode.setPrevious(this.tail);
-            this.tail = newNode;
         }
+        this.tail = newNode;
         this.size++;
         return true;
     }
@@ -212,7 +211,7 @@ public class JList<T> implements Collection<T> {
      */
     @Override
     public boolean addAll(final Collection<? extends T> collection) {
-        collection.stream().forEach(this::add);
+        collection.forEach(this::add);
         return true;
     }
 
@@ -226,9 +225,7 @@ public class JList<T> implements Collection<T> {
     public boolean contains(final Object value) {
         return this.stream()
             .parallel()
-            .filter(val -> val.equals(value))
-            .findAny()
-            .isPresent();
+            .anyMatch(val -> val.equals(value));
     }
 
     @Override

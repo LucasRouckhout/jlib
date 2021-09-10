@@ -32,7 +32,7 @@ public class JMap<K, V> implements Map<K, V> {
 
     public JMap(final Map<? extends K, ? extends V> m) {
         this();
-        m.forEach(this::put);
+        this.putAll(m);
     }
 
 
@@ -60,18 +60,14 @@ public class JMap<K, V> implements Map<K, V> {
     @Override
     public boolean containsKey(final Object key) {
         return this.keySet().stream()
-               .filter(k -> k.equals(key))
-               .findAny()
-               .isPresent();
+               .anyMatch(k -> k.equals(key));
     }
 
 
     @Override
     public boolean containsValue(final Object value) {
         return this.values().stream()
-               .filter(val -> val.equals(value))
-               .findAny()
-               .isPresent();
+               .anyMatch(val -> val.equals(value));
     }
 
     @Override
@@ -97,9 +93,8 @@ public class JMap<K, V> implements Map<K, V> {
         final var bucket = this.buckets.get(hash);
         return bucket.stream()
             .filter(entry -> entry.getKey().equals(key))
-            .map(e -> e.getValue())
-            .findAny()
-            .get();
+            .map(Entry::getValue)
+            .findAny().orElse(null);
     }
 
     @Override
@@ -111,7 +106,7 @@ public class JMap<K, V> implements Map<K, V> {
     public Set<K> keySet() {
         return this.buckets.stream()
             .flatMap(Collection::stream)
-            .map(entry -> entry.getKey())
+            .map(Entry::getKey)
             .collect(Collectors.toSet());
     }
 
@@ -192,7 +187,7 @@ public class JMap<K, V> implements Map<K, V> {
     public Collection<V> values() {
         return this.buckets.stream()
             .flatMap(Collection::stream)
-            .map(entry -> entry.getValue())
+            .map(Entry::getValue)
             .collect(Collectors.toList());
     }
 

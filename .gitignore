@@ -33,3 +33,4 @@ build/
 .classpath
 .gradle/
 .bloop/
+.idea/
