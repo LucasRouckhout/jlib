@@ -7,7 +7,7 @@ import java.util.Optional;
  * of a doubly linked list.
  */
 public class JStack<T> {
-    private JList<T> list;
+    private final JList<T> list;
 
     public JStack() {
         this.list = new JList<T>();
